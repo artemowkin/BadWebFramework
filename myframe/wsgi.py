@@ -29,16 +29,17 @@ class WSGIHandler:
         if not hasattr(main_urlconf_module, 'urlpatterns'):
             raise ValueError(f"{main_urlconf} needs to have `urlpatterns`")
 
-        return self.parse_urlpatterns(main_urlconf_module.urlpatterns)
+        return self.parse_urlpatterns(main_urlconf_module.urlpatterns,
+                                      self.request.path)
 
-    def parse_urlpatterns(self, urlpatterns):
+    def parse_urlpatterns(self, urlpatterns, path):
         if not isinstance(urlpatterns, dict):
             raise ValueError('`urlpatterns` need to be dict')
 
         for pattern, view in urlpatterns.items():
-            if pattern in self.request.path:
+            if path.startswith(pattern):
                 if isinstance(view, dict):
-                    return self.parse_urlpatterns(view)
+                    return self.parse_urlpatterns(view, path[len(pattern):])
                 else:
                     return view(self.request)
 

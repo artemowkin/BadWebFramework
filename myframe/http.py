@@ -1,3 +1,8 @@
+import os
+
+from myframe.settings import Settings
+
+
 class HTTPRequest:
 
     def __init__(self, environ):
@@ -12,11 +17,6 @@ class HTTPResponse:
             raise ValueError(
                 f'You cannot setup text to {status_code} status code'
             )
-        elif status_code == 200 and not text:
-            raise ValueError(
-                f'You need to setup text for 200 status code'
-            )
-
         self.status = self.get_response_status(status_code)
         self.response_text = (text.encode() or
                               self.get_response_text(status_code))
@@ -38,3 +38,30 @@ class HTTPResponse:
 
     def get_default_headers(self):
         return [('Content-type', 'text/html')]
+
+
+class HTTPTemplateResponse(HTTPResponse):
+
+    def __init__(self, template_name, status_code=200, headers=[]):
+        self.template_name = template_name
+        super().__init__(status_code=status_code, headers=headers)
+
+    def get_response_text(self, status_code):
+        if status_code == 200:
+            response_text = self.load_template()
+            return response_text
+
+        return super().get_response_text()
+
+    def load_template(self):
+        settings = Settings()
+        template_path = os.path.join(
+            settings['BASE_DIR'], settings['TEMPLATE_DIR'], self.template_name
+        )
+        if not os.path.exists(template_path):
+            raise ValueError(f"Template `{template_path}` does not exists")
+
+        with open(template_path) as template:
+            template_text = template.read()
+
+        return template_text.encode()

@@ -2,6 +2,7 @@ class HTTPRequest:
 
     def __init__(self, environ):
         self.path = environ['PATH_INFO']
+        self.cookies = environ.get('HTTP_COOKIE', '')
 
 
 class HTTPResponse:

@@ -7,7 +7,13 @@ $ pipenv sync
 $ pipenv shell
 ```
 
-And now you need to run gunicorn web server
+Change your directory to `testproject`
+
+```
+$ cd testproject
+```
+
+And run gunicorn web server
 
 ```
 $ gunicorn proj.wsgi

@@ -66,7 +66,8 @@ class HTTPTemplateResponse(HTTPResponse):
             raise ValueError(f"Template `{template_path}` does not exists")
 
         with open(template_path) as template:
-            template_text = template.read()
+            template_text = template.read().replace(
+                '{{ ', '{').replace(' }}', '}')
             template_text = template_text.format(**self.context)
 
         return template_text.encode()

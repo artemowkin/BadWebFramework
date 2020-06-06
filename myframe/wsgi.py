@@ -1,4 +1,5 @@
 import os
+import re
 import importlib
 
 from myframe.settings import settings
@@ -19,8 +20,8 @@ class WSGIHandler:
 
     def start_response(self):
         if not self.request.path.endswith('/'):
-            return HTTPResponse(status_code=301, headers=[
-                ('Location', f'{self.request.path}/')
+            return HTTPResponse(status_code=307, headers=[
+                ('Location', f"/{self.request.path}/")
             ])
 
         main_urlconf = settings.ROOT_URLCONF
@@ -36,11 +37,16 @@ class WSGIHandler:
             raise ValueError('`urlpatterns` need to be dict')
 
         for pattern, view in urlpatterns.items():
-            if path.startswith(pattern):
+            match = re.match(pattern, path)
+            if match:
                 if isinstance(view, dict):
-                    return self.parse_urlpatterns(view, path[len(pattern):])
+                    return self.parse_urlpatterns(view, path[match.end():])
                 else:
-                    return view(self.request)
+                    kwargs = match.groupdict()
+                    if kwargs:
+                        return view(self.request, **kwargs)
+
+                return view(self.request)
 
         return HTTPResponse(status_code=404)
 

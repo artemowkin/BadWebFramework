@@ -6,7 +6,7 @@ from myframe.settings import settings
 class HTTPRequest:
 
     def __init__(self, environ):
-        self.path = environ['PATH_INFO']
+        self.path = environ.get('PATH_INFO')[1:]
         self.cookies = environ.get('HTTP_COOKIE', '')
 
 
@@ -17,6 +17,7 @@ class HTTPResponse:
             raise ValueError(
                 f'You cannot setup text to {status_code} status code'
             )
+
         self.status = self.get_response_status(status_code)
         self.response_text = (text.encode() or
                               self.get_response_text(status_code))
@@ -29,6 +30,10 @@ class HTTPResponse:
             return '404 Not Found'
         elif status_code == 301:
             return '301 Moved Permanently'
+        elif status_code == 307:
+            return '307 Temporary Redirect'
+        elif status_code == 308:
+            return '308 Permanent Redirect'
 
     def get_response_text(self, status_code):
         if status_code == 404:

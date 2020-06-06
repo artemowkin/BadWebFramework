@@ -67,6 +67,6 @@ class HTTPTemplateResponse(HTTPResponse):
 
         with open(template_path) as template:
             template_text = template.read()
-            template_text = template_text % self.context
+            template_text = template_text.format(**self.context)
 
         return template_text.encode()

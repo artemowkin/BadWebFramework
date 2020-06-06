@@ -1,9 +1,11 @@
 import sys
 import os
 
-sys.path.append(os.path.dirname(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-))
+from .settings import BASE_DIR
+
+os.environ.setdefault('MYFRAME_SETTINGS_MODULE', 'proj.settings')
+
+sys.path.append(os.path.dirname(BASE_DIR))
 
 from myframe.wsgi import get_wsgi_application
 

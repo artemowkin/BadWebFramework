@@ -1,6 +1,6 @@
 import os
 
-from myframe.settings import Settings
+from myframe.settings import settings
 
 
 class HTTPRequest:
@@ -54,9 +54,8 @@ class HTTPTemplateResponse(HTTPResponse):
         return super().get_response_text()
 
     def load_template(self):
-        settings = Settings()
         template_path = os.path.join(
-            settings['BASE_DIR'], settings['TEMPLATE_DIR'], self.template_name
+            settings.BASE_DIR, settings.TEMPLATE_DIR, self.template_name
         )
         if not os.path.exists(template_path):
             raise ValueError(f"Template `{template_path}` does not exists")

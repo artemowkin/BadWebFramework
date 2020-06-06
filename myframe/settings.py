@@ -17,8 +17,11 @@ class Settings:
 
         return env
 
-    def __getitem__(self, item):
+    def __getattr__(self, item):
         if not hasattr(self.settings_module, item):
             raise ValueError(f'Settings module does not have attr {item}')
 
         return getattr(self.settings_module, item)
+
+
+settings = Settings()

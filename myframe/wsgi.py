@@ -1,7 +1,7 @@
 import os
 import importlib
 
-from myframe.settings import Settings
+from myframe.settings import settings
 from myframe.http import HTTPRequest, HTTPResponse
 
 
@@ -23,8 +23,7 @@ class WSGIHandler:
                 ('Location', f'{self.request.path}/')
             ])
 
-        settings = Settings()
-        main_urlconf = settings['ROOT_URLCONF']
+        main_urlconf = settings.ROOT_URLCONF
         main_urlconf_module = importlib.import_module(main_urlconf)
         if not hasattr(main_urlconf_module, 'urlpatterns'):
             raise ValueError(f"{main_urlconf} needs to have `urlpatterns`")
@@ -47,5 +46,4 @@ class WSGIHandler:
 
 
 def get_wsgi_application(settings_module):
-    os.environ.setdefault('MYFRAME_SETTINGS_MODULE', settings_module)
     return WSGIHandler

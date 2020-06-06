@@ -3,7 +3,7 @@ import re
 import importlib
 
 from myframe.settings import settings
-from myframe.http import HTTPRequest, HTTPResponse
+from myframe.http import HTTPRequest, HTTPResponse, HTTPTemplateResponse
 
 
 class WSGIHandler:
@@ -19,7 +19,7 @@ class WSGIHandler:
         yield response.response_text
 
     def start_response(self):
-        if not self.request.path.endswith('/'):
+        if not self.request.path.endswith('/') and self.request.path:
             return HTTPResponse(status_code=307, headers=[
                 ('Location', f"/{self.request.path}/")
             ])
@@ -36,11 +36,16 @@ class WSGIHandler:
         if not isinstance(urlpatterns, dict):
             raise ValueError('`urlpatterns` need to be dict')
 
+        if not urlpatterns:
+            return HTTPTemplateResponse(template_name='myframe_home.html')
+
         for pattern, view in urlpatterns.items():
             match = re.match(pattern, path)
             if match:
                 if isinstance(view, dict):
                     return self.parse_urlpatterns(view, path[match.end():])
+                elif path and not pattern:
+                    continue
                 else:
                     kwargs = match.groupdict()
                     if kwargs:
@@ -51,5 +56,5 @@ class WSGIHandler:
         return HTTPResponse(status_code=404)
 
 
-def get_wsgi_application(settings_module):
+def get_wsgi_application():
     return WSGIHandler

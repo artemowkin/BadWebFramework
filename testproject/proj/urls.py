@@ -1,5 +1,5 @@
-from govnoapp.urls import urlpatterns as govno_urls
+from myframe.urls import include
 
 urlpatterns = {
-    '': govno_urls,
+    '': include('test_app.urls'),
 }

@@ -9,4 +9,4 @@ sys.path.append(os.path.dirname(BASE_DIR))
 
 from myframe.wsgi import get_wsgi_application
 
-application = get_wsgi_application('proj.settings')
+application = get_wsgi_application()

@@ -1,4 +1,5 @@
 import os
+from string import Template
 
 from myframe.settings import settings
 
@@ -64,15 +65,22 @@ class HTTPTemplateResponse(HTTPResponse):
         return super().get_response_text()
 
     def load_template(self):
-        template_path = os.path.join(
+        project_template_path = os.path.join(
             settings.BASE_DIR, settings.TEMPLATE_DIR, self.template_name
         )
-        if not os.path.exists(template_path):
-            raise ValueError(f"Template `{template_path}` does not exists")
+        framework_template_path = os.path.join(
+            os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                         'templates', self.template_name)
+        )
+        for path in [project_template_path, framework_template_path]:
+            if not os.path.exists(path):
+                continue
 
-        with open(template_path) as template:
-            template_text = template.read().replace(
-                '{{ ', '{').replace(' }}', '}')
-            template_text = template_text.format(**self.context)
+            with open(path) as template:
+                template_text = template.read()
+                temp = Template(template_text)
+                template_text = temp.substitute(**self.context)
 
-        return template_text.encode()
+            return template_text.encode()
+
+        raise ValueError(f"Template `{self.template_name}` doesn't exists")

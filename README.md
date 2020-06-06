@@ -18,3 +18,7 @@ And run gunicorn web server
 ```
 $ gunicorn proj.wsgi
 ```
+
+# Docs
+
+If you want to work with my (bad (really!)) framework you can read documentation into `docs` directory

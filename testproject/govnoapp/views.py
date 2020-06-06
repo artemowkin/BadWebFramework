@@ -11,4 +11,5 @@ def dermo_view(request):
 
 
 def template_view(request):
-    return HTTPTemplateResponse('template.html')
+    data = {'key1': 'val1', 'key2': 'val2'}
+    return HTTPTemplateResponse('template.html', context=data)

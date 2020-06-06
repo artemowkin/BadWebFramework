@@ -42,9 +42,14 @@ class HTTPResponse:
 
 class HTTPTemplateResponse(HTTPResponse):
 
-    def __init__(self, template_name, status_code=200, headers=[]):
+    def __init__(self, template_name, context={}, status_code=200,
+                 headers=[]):
         self.template_name = template_name
+        self.context = self.get_context_data(context)
         super().__init__(status_code=status_code, headers=headers)
+
+    def get_context_data(self, context):
+        return context
 
     def get_response_text(self, status_code):
         if status_code == 200:
@@ -62,5 +67,6 @@ class HTTPTemplateResponse(HTTPResponse):
 
         with open(template_path) as template:
             template_text = template.read()
+            template_text = template_text % self.context
 
         return template_text.encode()

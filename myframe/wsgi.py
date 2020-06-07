@@ -1,6 +1,7 @@
 import os
 import re
 import importlib
+import mimetypes
 
 from myframe.settings import settings
 from myframe.http import HTTPRequest, HTTPResponse, HTTPTemplateResponse
@@ -19,9 +20,9 @@ class WSGIHandler:
         yield response.response_text
 
     def start_response(self):
-        if not self.request.path.endswith('/') and self.request.path:
+        if not self.request.path.endswith('/') and not self.request.is_static:
             return HTTPResponse(status_code=307, headers=[
-                ('Location', f"/{self.request.path}/")
+                ('Location', f"{self.request.path}/")
             ])
 
         main_urlconf = settings.ROOT_URLCONF
@@ -33,6 +34,9 @@ class WSGIHandler:
                                       self.request.path)
 
     def parse_urlpatterns(self, urlpatterns, path):
+        if path.startswith('/'):
+            path = path[1:]
+
         if not isinstance(urlpatterns, dict):
             raise ValueError('`urlpatterns` need to be dict')
 
@@ -43,7 +47,11 @@ class WSGIHandler:
             match = re.match(pattern, path)
             if match:
                 if isinstance(view, dict):
-                    return self.parse_urlpatterns(view, path[match.end():])
+                    view = self.parse_urlpatterns(view, path[match.end():])
+                    if view.status_code == 404:
+                        continue
+
+                    return view
                 elif path and not pattern:
                     continue
                 else:

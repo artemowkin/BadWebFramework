@@ -1,4 +1,5 @@
 import os
+import mimetypes
 from string import Template
 
 from myframe.settings import settings
@@ -7,9 +8,16 @@ from myframe.settings import settings
 class HTTPRequest:
 
     def __init__(self, environ):
-        self.path = environ.get('PATH_INFO')[1:]
+        self.path = environ.get('PATH_INFO')
         self.method = environ.get('REQUEST_METHOD')
         self.cookies = environ.get('HTTP_COOKIE', '')
+
+    @property
+    def is_static(self):
+        if mimetypes.guess_type(self.path)[0]:
+            return True
+
+        return False
 
 
 class HTTPResponse:
@@ -20,10 +28,11 @@ class HTTPResponse:
                 f'You cannot setup text to {status_code} status code'
             )
 
+        self.status_code = status_code
         self.status = self.get_response_status(status_code)
         self.response_text = (text.encode() or
                               self.get_response_text(status_code))
-        self.headers = headers or self.get_default_headers()
+        self.headers = headers or self.get_default_headers(status_code)
 
     def get_response_status(self, status_code):
         if status_code == 200:
@@ -47,17 +56,42 @@ class HTTPResponse:
 
         return ''.encode()
 
-    def get_default_headers(self):
+    def get_default_headers(self, status_code):
         return [('Content-type', 'text/html')]
+
+
+class HTTPStaticFilesResponse(HTTPResponse):
+
+    def __init__(self, filename, headers=[]):
+        if filename.startswith('/'):
+            filename = filename[1:]
+
+        self.filename = os.path.join(settings.STATIC_ROOT, filename)
+        if not os.path.exists(self.filename):
+            super().__init__(status_code=404)
+        else:
+            super().__init__(status_code=200, headers=headers)
+
+    def get_response_text(self, status_code):
+        if status_code == 200:
+            with open(self.filename) as staticfile:
+                return staticfile.read().encode()
+
+        return super().get_response_text(status_code)
+
+    def get_default_headers(self, status_code):
+        if status_code == 200:
+            return [('Content-type', mimetypes.guess_type(self.filename)[0])]
+
+        return super().get_default_headers(status_code)
 
 
 class HTTPTemplateResponse(HTTPResponse):
 
-    def __init__(self, template_name, context={}, status_code=200,
-                 headers=[]):
+    def __init__(self, template_name, context={}, headers=[]):
         self.template_name = template_name
         self.context = self.get_context_data(context)
-        super().__init__(status_code=status_code, headers=headers)
+        super().__init__(status_code=200, headers=headers)
 
     def get_context_data(self, context):
         return context

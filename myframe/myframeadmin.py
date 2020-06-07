@@ -63,6 +63,9 @@ def startproject(project_name, path=''):
     # templates dir
     os.mkdir(os.path.join(base_dir, 'templates'))
 
+    # static dir
+    os.mkdir(os.path.join(base_dir, 'static'))
+
     # __init__.py
     create_empty_file(main_project_app, '__init__.py')
 
@@ -71,7 +74,8 @@ def startproject(project_name, path=''):
                 f"import os\n\nROOT_URLCONF = '{project_name}.urls'\n\n"
                 "BASE_DIR = os.path.dirname(os.path.dirname"
                 "(os.path.abspath(__file__)))\n\n"
-                "TEMPLATE_DIR = 'templates'")
+                "TEMPLATE_DIR = 'templates'\n\nSTATIC_URL='/static/'\n\n"
+                "STATIC_ROOT = os.path.join(BASE_DIR, 'static')")
 
     # urls.py
     create_file(main_project_app, 'urls.py',

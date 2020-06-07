@@ -9,7 +9,7 @@ class StaticFilesHandler(View):
 
     def get(self, request, *args, **kwargs):
         if not request.path.startswith(settings.STATIC_URL):
-            raise ValueError("You set uncorrect `static_url`")
+            raise ValueError("You set uncorrect `STATIC_URL`")
 
         staticfile = request.path[len(settings.STATIC_URL):]
         return HTTPStaticFilesResponse(staticfile)
@@ -21,3 +21,7 @@ def include(app_urls):
         raise ValueError(f"{url_module} module doesn't have `urlpatterns`")
 
     return urls_module.urlpatterns
+
+
+def static():
+    return {settings.STATIC_URL[1:]: StaticFilesHandler.as_view()}

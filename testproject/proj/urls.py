@@ -1,6 +1,7 @@
-from myframe.urls import include, StaticFilesHandler
+from myframe.urls import include, static
 
 urlpatterns = {
     '': include('test_app.urls'),
-    'static/': StaticFilesHandler.as_view(),
 }
+
+urlpatterns.update(static())

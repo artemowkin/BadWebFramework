@@ -1,16 +1,26 @@
 from myframe.http import HTTPResponse, HTTPTemplateResponse
+from myframe.views import TemplateView, HTMLView
 
 
-def hello_view(request):
-    return HTTPResponse('<h1>Hello World!!!</h1>')
+class HelloView(HTMLView):
+    html_code = '<h1>Hello World!!!</h1>'
 
 
-def template_view(request):
-    data = {'key1': 'val1', 'key2': 'val2'}
-    return HTTPTemplateResponse('template.html', context=data)
+class TemplatePageView(TemplateView):
+    template_name = 'template.html'
+
+    def get_context_data(self, request):
+        context = super().get_context_data(request)
+        context['key1'] = 'val1'
+        context['key2'] = 'val2'
+        return context
 
 
-def regular_view(request, pk):
-    data = {'1': 'foo', '2': 'bar'}
-    context_data = {'object': data.get(pk, '')}
-    return HTTPTemplateResponse('regular.html', context=context_data)
+class RegularView(TemplateView):
+    template_name = 'regular.html'
+
+    def get_context_data(self, request):
+        context = super().get_context_data(request)
+        data = {'1': 'foo', '2': 'bar'}
+        context['object'] = data.get(self.kwargs['pk'], '')
+        return context

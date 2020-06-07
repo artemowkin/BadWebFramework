@@ -8,6 +8,7 @@ class HTTPRequest:
 
     def __init__(self, environ):
         self.path = environ.get('PATH_INFO')[1:]
+        self.method = environ.get('REQUEST_METHOD')
         self.cookies = environ.get('HTTP_COOKIE', '')
 
 
@@ -29,6 +30,8 @@ class HTTPResponse:
             return '200 OK'
         elif status_code == 404:
             return '404 Not Found'
+        elif status_code == 405:
+            return '405 Method Not Allowed'
         elif status_code == 301:
             return '301 Moved Permanently'
         elif status_code == 307:
@@ -39,6 +42,8 @@ class HTTPResponse:
     def get_response_text(self, status_code):
         if status_code == 404:
             return '<h1>404 Not Found</h1>'.encode()
+        elif status_code == 405:
+            return '<h1>405 Method Not Allowerd</h1>'.encode()
 
         return ''.encode()
 

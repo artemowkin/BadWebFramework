@@ -26,6 +26,14 @@ class HTTPRequest:
         self.path = environ.get('PATH_INFO')
         self.method = environ.get('REQUEST_METHOD')
         self.cookies = environ.get('HTTP_COOKIE', '')
+        self.GET = self.get_query_params(environ)
+
+    def get_query_params(self, environ):
+        query_string = environ.get('QUERY_STRING')
+        if not query_string:
+            return {}
+
+        return dict([param.split('=') for param in query_string.split('&')])
 
     @property
     def is_static(self):

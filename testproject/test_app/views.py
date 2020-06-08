@@ -11,8 +11,13 @@ class TemplatePageView(TemplateView):
 
     def get_context_data(self, request):
         context = super().get_context_data(request)
-        context['key1'] = 'val1'
-        context['key2'] = 'val2'
+        data = {'key1': 'val1', 'key2': 'val2'}
+        query = request.GET.get('q')
+        if not query:
+            context['object'] = ''
+        else:
+            context['object'] = data[query]
+
         return context
 
 
